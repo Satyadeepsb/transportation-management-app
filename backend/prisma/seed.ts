@@ -1,6 +1,7 @@
 import { PrismaClient, UserRole, ShipmentStatus, VehicleType } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import * as bcrypt from 'bcrypt';
 import 'dotenv/config';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -14,13 +15,18 @@ const prisma = new PrismaClient({
 async function main() {
   console.log('🌱 Starting database seeding...');
 
+  // Hash password for all test users (password: "password123")
+  const hashedPassword = await bcrypt.hash('password123', 10);
+
   // Create Admin User
   const admin = await prisma.user.upsert({
     where: { email: 'admin@transport.com' },
-    update: {},
+    update: {
+      password: hashedPassword, // Update password if user exists
+    },
     create: {
       email: 'admin@transport.com',
-      password: '$2b$10$YourHashedPasswordHere', // This would be bcrypt hashed in real app
+      password: hashedPassword,
       firstName: 'Admin',
       lastName: 'User',
       role: UserRole.ADMIN,
@@ -28,15 +34,17 @@ async function main() {
       isActive: true,
     },
   });
-  console.log('✅ Admin user created:', admin.email);
+  console.log('✅ Admin user created:', admin.email, '(password: password123)');
 
   // Create Dispatcher
   const dispatcher = await prisma.user.upsert({
     where: { email: 'dispatcher@transport.com' },
-    update: {},
+    update: {
+      password: hashedPassword,
+    },
     create: {
       email: 'dispatcher@transport.com',
-      password: '$2b$10$YourHashedPasswordHere',
+      password: hashedPassword,
       firstName: 'John',
       lastName: 'Dispatcher',
       role: UserRole.DISPATCHER,
@@ -44,15 +52,17 @@ async function main() {
       isActive: true,
     },
   });
-  console.log('✅ Dispatcher created:', dispatcher.email);
+  console.log('✅ Dispatcher created:', dispatcher.email, '(password: password123)');
 
   // Create Drivers
   const driver1 = await prisma.user.upsert({
     where: { email: 'driver1@transport.com' },
-    update: {},
+    update: {
+      password: hashedPassword,
+    },
     create: {
       email: 'driver1@transport.com',
-      password: '$2b$10$YourHashedPasswordHere',
+      password: hashedPassword,
       firstName: 'Mike',
       lastName: 'Driver',
       role: UserRole.DRIVER,
@@ -60,14 +70,16 @@ async function main() {
       isActive: true,
     },
   });
-  console.log('✅ Driver 1 created:', driver1.email);
+  console.log('✅ Driver 1 created:', driver1.email, '(password: password123)');
 
   const driver2 = await prisma.user.upsert({
     where: { email: 'driver2@transport.com' },
-    update: {},
+    update: {
+      password: hashedPassword,
+    },
     create: {
       email: 'driver2@transport.com',
-      password: '$2b$10$YourHashedPasswordHere',
+      password: hashedPassword,
       firstName: 'Sarah',
       lastName: 'Johnson',
       role: UserRole.DRIVER,
@@ -75,15 +87,17 @@ async function main() {
       isActive: true,
     },
   });
-  console.log('✅ Driver 2 created:', driver2.email);
+  console.log('✅ Driver 2 created:', driver2.email, '(password: password123)');
 
   // Create Customer
   const customer = await prisma.user.upsert({
     where: { email: 'customer@example.com' },
-    update: {},
+    update: {
+      password: hashedPassword,
+    },
     create: {
       email: 'customer@example.com',
-      password: '$2b$10$YourHashedPasswordHere',
+      password: hashedPassword,
       firstName: 'Jane',
       lastName: 'Customer',
       role: UserRole.CUSTOMER,
@@ -91,7 +105,7 @@ async function main() {
       isActive: true,
     },
   });
-  console.log('✅ Customer created:', customer.email);
+  console.log('✅ Customer created:', customer.email, '(password: password123)');
 
   // Create Sample Shipments
   const shipment1 = await prisma.shipment.create({

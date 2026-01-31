@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
@@ -8,9 +9,15 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ShipmentModule } from './shipment/shipment.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    // Environment Variables Configuration
+    ConfigModule.forRoot({
+      isGlobal: true, // Makes ConfigService available globally
+      envFilePath: '.env',
+    }),
     // GraphQL Configuration
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -29,6 +36,7 @@ import { UsersModule } from './users/users.module';
       },
     }),
     PrismaModule,
+    AuthModule,
     HealthModule,
     ShipmentModule,
     UsersModule,

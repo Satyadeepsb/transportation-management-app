@@ -1,0 +1,237 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  accessToken: String!
+  user: User!
+}
+
+input CreateShipmentInput {
+  cargoDescription: String!
+  consigneeAddress: String!
+  consigneeCity: String!
+  consigneeEmail: String
+  consigneeName: String!
+  consigneePhone: String!
+  consigneeState: String!
+  consigneeZip: String!
+  dimensions: String
+  estimatedDelivery: String!
+  estimatedRate: Float!
+  notes: String
+  pickupDate: String!
+  shipperAddress: String!
+  shipperCity: String!
+  shipperEmail: String
+  shipperName: String!
+  shipperPhone: String!
+  shipperState: String!
+  shipperZip: String!
+  vehicleType: VehicleType!
+  weight: Float!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  """Assign a driver to a shipment"""
+  assignDriver(driverId: String!, shipmentId: String!): Shipment!
+
+  """Create a new shipment"""
+  createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
+
+  """Login with email and password"""
+  login(loginInput: LoginInput!): AuthResponse!
+
+  """Register a new user account"""
+  register(registerInput: RegisterInput!): AuthResponse!
+
+  """Delete a shipment (admin only)"""
+  removeShipment(id: String!): Shipment!
+
+  """Update an existing shipment"""
+  updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
+}
+
+type PaginatedShipmentsResponse {
+  data: [Shipment!]!
+  meta: PaginationMeta!
+}
+
+input PaginationInput {
+  limit: Int! = 10
+  page: Int! = 1
+  sortBy: String = "createdAt"
+  sortOrder: String = "desc"
+}
+
+type PaginationMeta {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  limit: Int!
+  page: Int!
+  total: Int!
+  totalPages: Int!
+}
+
+type Query {
+  """Get all active drivers"""
+  drivers: [User!]!
+
+  """Get current authenticated user"""
+  me: User!
+
+  """Get a single shipment by ID"""
+  shipment(id: String!): Shipment!
+
+  """Get paginated list of shipments with optional filters"""
+  shipments(filter: ShipmentFilterInput, pagination: PaginationInput): PaginatedShipmentsResponse!
+
+  """Track shipment by tracking number (public)"""
+  trackShipment(trackingNumber: String!): Shipment!
+
+  """Get a single user by ID"""
+  user(id: String!): User!
+
+  """Get all users with optional role filter"""
+  users(role: UserRole): [User!]!
+}
+
+input RegisterInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+  phone: String
+  role: UserRole! = CUSTOMER
+}
+
+type Shipment {
+  actualRate: Float
+  cargoDescription: String!
+  consigneeAddress: String!
+  consigneeCity: String!
+  consigneeEmail: String
+  consigneeName: String!
+  consigneePhone: String!
+  consigneeState: String!
+  consigneeZip: String!
+  createdAt: DateTime!
+  createdBy: User
+  createdById: String!
+  currency: String!
+  deliveryDate: DateTime
+  dimensions: String
+  driver: User
+  driverId: String
+  estimatedDelivery: DateTime!
+  estimatedRate: Float!
+  id: ID!
+  notes: String
+  pickupDate: DateTime!
+  shipperAddress: String!
+  shipperCity: String!
+  shipperEmail: String
+  shipperName: String!
+  shipperPhone: String!
+  shipperState: String!
+  shipperZip: String!
+  status: ShipmentStatus!
+  trackingNumber: String!
+  updatedAt: DateTime!
+  vehicleType: VehicleType!
+  weight: Float!
+}
+
+input ShipmentFilterInput {
+  consigneeCity: String
+  createdById: String
+  driverId: String
+  search: String
+  shipperCity: String
+  status: ShipmentStatus
+  trackingNumber: String
+}
+
+"""Status of the shipment in its lifecycle"""
+enum ShipmentStatus {
+  ASSIGNED
+  CANCELLED
+  DELIVERED
+  IN_TRANSIT
+  PENDING
+  PICKED_UP
+}
+
+input UpdateShipmentInput {
+  actualRate: Float
+  cargoDescription: String
+  consigneeAddress: String
+  consigneeCity: String
+  consigneeName: String
+  consigneePhone: String
+  consigneeState: String
+  consigneeZip: String
+  deliveryDate: String
+  dimensions: String
+  driverId: String
+  estimatedDelivery: String
+  estimatedRate: Float
+  id: String!
+  notes: String
+  pickupDate: String
+  shipperAddress: String
+  shipperCity: String
+  shipperName: String
+  shipperPhone: String
+  shipperState: String
+  shipperZip: String
+  status: ShipmentStatus
+  vehicleType: VehicleType
+  weight: Float
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  fullName: String!
+  id: ID!
+  isActive: Boolean!
+  lastName: String!
+  phone: String
+  role: UserRole!
+  updatedAt: DateTime!
+}
+
+"""User role for access control"""
+enum UserRole {
+  """Full system access"""
+  ADMIN
+
+  """Can create shipments and view own shipments"""
+  CUSTOMER
+
+  """Can create and assign shipments"""
+  DISPATCHER
+
+  """Can view assigned shipments and update status"""
+  DRIVER
+}
+
+"""Type of vehicle required for the shipment"""
+enum VehicleType {
+  FLATBED
+  TRAILER
+  TRUCK
+  VAN
+}

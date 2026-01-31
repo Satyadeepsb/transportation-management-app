@@ -1,0 +1,14 @@
+mutation TestLogin {
+  login(loginInput: {
+    email: "admin@transport.com"
+    password: "password123"
+  }) {
+    accessToken
+    user {
+      id
+      email
+      fullName
+      role
+    }
+  }
+}
