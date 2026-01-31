@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,7 +11,19 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global prefix for all routes
+  // Global validation pipe for automatic DTO validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Strip properties that don't have decorators
+      forbidNonWhitelisted: true, // Throw error if non-whitelisted properties exist
+      transform: true, // Automatically transform payloads to DTO instances
+      transformOptions: {
+        enableImplicitConversion: true, // Convert string to number, etc.
+      },
+    }),
+  );
+
+  // Global prefix for all REST routes (GraphQL not affected)
   app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 3000;
@@ -18,6 +31,7 @@ async function bootstrap() {
 
   console.log(`🚀 Application is running on: http://localhost:${port}`);
   console.log(`📊 Health check: http://localhost:${port}/api/health`);
+  console.log(`🚀 GraphQL Playground: http://localhost:${port}/graphql`);
 }
 
 bootstrap();
