@@ -120,3 +120,28 @@ export interface RegisterInput {
   role?: UserRole;
   phone?: string;
 }
+
+// User Management
+export interface CreateUserInput {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  phone?: string;
+}
+
+export interface UpdateUserInput {
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: UserRole;
+  phone?: string;
+  isActive?: boolean;
+}
+
+export interface PaginatedUsers {
+  data: User[];
+  meta: PaginationMeta;
+}
