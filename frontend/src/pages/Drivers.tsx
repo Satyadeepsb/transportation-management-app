@@ -4,12 +4,11 @@ import { useQuery } from '@apollo/client/react';
 import { useAuth } from '../contexts/AuthContext';
 import { GET_USERS_QUERY } from '../graphql/users';
 import { UserRole } from '../types';
-import type { PaginatedUsers } from '../types';
+import type { User } from '../types';
 
 export default function Drivers() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -19,20 +18,7 @@ export default function Drivers() {
     return null;
   }
 
-  const filter: any = { role: UserRole.DRIVER };
-  if (statusFilter !== 'all') {
-    filter.isActive = statusFilter === 'active';
-  }
-
-  const { data, loading, error } = useQuery<{ users: PaginatedUsers }>(
-    GET_USERS_QUERY,
-    {
-      variables: {
-        filter,
-        pagination: { page, limit: 10 },
-      },
-    }
-  );
+  const { data, loading, error } = useQuery<{ users: User[] }>(GET_USERS_QUERY);
 
   if (loading) {
     return (
@@ -53,17 +39,22 @@ export default function Drivers() {
     );
   }
 
-  const drivers = data?.users.data || [];
+  // Filter drivers and apply status filter
+  const allDrivers = (data?.users || []).filter((u) => u.role === UserRole.DRIVER);
+  const statusFilteredDrivers =
+    statusFilter === 'all'
+      ? allDrivers
+      : allDrivers.filter((d) => d.isActive === (statusFilter === 'active'));
 
   // Client-side search filter
   const filteredDrivers = searchTerm
-    ? drivers.filter(
+    ? statusFilteredDrivers.filter(
         (driver) =>
           driver.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           driver.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
           driver.phone?.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : drivers;
+    : statusFilteredDrivers;
 
   return (
     <div>
@@ -187,38 +178,6 @@ export default function Drivers() {
               </tbody>
             </table>
           </div>
-
-          {/* Pagination */}
-          {data?.users.meta && !searchTerm && (
-            <div className="mt-4 flex justify-between items-center">
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{((page - 1) * 10) + 1}</span> to{' '}
-                <span className="font-medium">
-                  {Math.min(page * 10, data.users.meta.total)}
-                </span> of{' '}
-                <span className="font-medium">{data.users.meta.total}</span> drivers
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPage((p) => p - 1)}
-                  disabled={!data.users.meta.hasPreviousPage}
-                  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <span className="px-4 py-2 text-sm text-gray-700">
-                  Page {page} of {data.users.meta.totalPages}
-                </span>
-                <button
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={!data.users.meta.hasNextPage}
-                  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
         </>
       )}
 
@@ -234,7 +193,7 @@ export default function Drivers() {
             <div className="ml-5">
               <p className="text-sm font-medium text-gray-500">Active Drivers</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {drivers.filter((d) => d.isActive).length}
+                {allDrivers.filter((d) => d.isActive).length}
               </p>
             </div>
           </div>
@@ -249,7 +208,7 @@ export default function Drivers() {
             <div className="ml-5">
               <p className="text-sm font-medium text-gray-500">Inactive Drivers</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {drivers.filter((d) => !d.isActive).length}
+                {allDrivers.filter((d) => !d.isActive).length}
               </p>
             </div>
           </div>
@@ -263,7 +222,7 @@ export default function Drivers() {
             </div>
             <div className="ml-5">
               <p className="text-sm font-medium text-gray-500">Total Drivers</p>
-              <p className="text-2xl font-semibold text-gray-900">{drivers.length}</p>
+              <p className="text-2xl font-semibold text-gray-900">{allDrivers.length}</p>
             </div>
           </div>
         </div>

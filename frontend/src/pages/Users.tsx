@@ -5,12 +5,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { GET_USERS_QUERY, UPDATE_USER_MUTATION, DELETE_USER_MUTATION } from '../graphql/users';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { UserRole } from '../types';
-import type { PaginatedUsers, User } from '../types';
+import type { User } from '../types';
 
 export default function Users() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState<UserRole | ''>('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
@@ -21,23 +20,7 @@ export default function Users() {
     return null;
   }
 
-  const filter: any = {};
-  if (roleFilter) {
-    filter.role = roleFilter;
-  }
-  if (statusFilter !== 'all') {
-    filter.isActive = statusFilter === 'active';
-  }
-
-  const { data, loading, error, refetch } = useQuery<{ users: PaginatedUsers }>(
-    GET_USERS_QUERY,
-    {
-      variables: {
-        filter,
-        pagination: { page, limit: 10 },
-      },
-    }
-  );
+  const { data, loading, error, refetch } = useQuery<{ users: User[] }>(GET_USERS_QUERY);
 
   const [updateUser, { loading: updateLoading }] = useMutation(UPDATE_USER_MUTATION);
   const [deleteUser, { loading: deleteLoading }] = useMutation(DELETE_USER_MUTATION);
@@ -90,7 +73,16 @@ export default function Users() {
     );
   }
 
-  const users = data?.users.data || [];
+  // Apply filters client-side
+  const allUsers = data?.users || [];
+  const roleFilteredUsers = roleFilter
+    ? allUsers.filter((u) => u.role === roleFilter)
+    : allUsers;
+  const users =
+    statusFilter === 'all'
+      ? roleFilteredUsers
+      : roleFilteredUsers.filter((u) => u.isActive === (statusFilter === 'active'));
+
   const userToDelete = users.find((u) => u.id === deleteUserId);
 
   return (
@@ -235,38 +227,6 @@ export default function Users() {
               </tbody>
             </table>
           </div>
-
-          {/* Pagination */}
-          {data?.users.meta && (
-            <div className="mt-4 flex justify-between items-center">
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{((page - 1) * 10) + 1}</span> to{' '}
-                <span className="font-medium">
-                  {Math.min(page * 10, data.users.meta.total)}
-                </span> of{' '}
-                <span className="font-medium">{data.users.meta.total}</span> users
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPage(p => p - 1)}
-                  disabled={!data.users.meta.hasPreviousPage}
-                  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <span className="px-4 py-2 text-sm text-gray-700">
-                  Page {page} of {data.users.meta.totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(p => p + 1)}
-                  disabled={!data.users.meta.hasNextPage}
-                  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
         </>
       )}
 

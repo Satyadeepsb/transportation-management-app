@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client/react';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './components/Toast';
+import ErrorBoundary from './components/ErrorBoundary';
 import { apolloClient } from './lib/apollo-client';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Shipments from './pages/Shipments';
 import CreateShipment from './pages/CreateShipment';
 import ShipmentDetail from './pages/ShipmentDetail';
 import EditShipment from './pages/EditShipment';
@@ -16,12 +19,18 @@ import Users from './pages/Users';
 import CreateUser from './pages/CreateUser';
 import EditUser from './pages/EditUser';
 import Drivers from './pages/Drivers';
+import Profile from './pages/Profile';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
-    <ApolloProvider client={apolloClient}>
-      <AuthProvider>
-        <BrowserRouter>
+    <ErrorBoundary>
+      <ApolloProvider client={apolloClient}>
+        <AuthProvider>
+          <ToastProvider>
+            <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -41,7 +50,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <Dashboard />
+                    <Shipments />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -126,11 +135,44 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Profile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Reports />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Settings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
-    </ApolloProvider>
+      </ToastProvider>
+    </AuthProvider>
+  </ApolloProvider>
+</ErrorBoundary>
   );
 }
 
