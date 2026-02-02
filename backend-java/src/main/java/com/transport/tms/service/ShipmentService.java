@@ -70,6 +70,12 @@ public class ShipmentService {
     }
 
     @Transactional
+    public Shipment updateShipment(Shipment shipment) {
+        return shipmentRepository.save(shipment);
+    }
+
+    @Deprecated
+    @Transactional
     public Shipment update(String id, ShipmentStatus status, Double actualRate,
                           LocalDate deliveryDate, String notes) {
         Shipment shipment = findById(id);

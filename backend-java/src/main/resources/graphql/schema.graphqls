@@ -137,7 +137,7 @@ input CreateUserInput {
 }
 
 input UpdateUserInput {
-  id: ID!
+  id: String!
   email: String
   firstName: String
   lastName: String
@@ -178,7 +178,7 @@ input CreateShipmentInput {
 }
 
 input UpdateShipmentInput {
-  id: ID!
+  id: String!
   status: ShipmentStatus
   actualRate: Float
   deliveryDate: String
@@ -216,12 +216,12 @@ type Query {
 
   # Users
   users(filter: UserFilterInput, pagination: PaginationInput): PaginatedUsers!
-  user(id: ID!): User!
+  user(id: String!): User!
   drivers: [User!]!
 
   # Shipments
   shipments(filter: ShipmentFilterInput, pagination: PaginationInput): PaginatedShipments!
-  shipment(id: ID!): Shipment!
+  shipment(id: String!): Shipment!
   trackShipment(trackingNumber: String!): Shipment!
   myShipments(pagination: PaginationInput): PaginatedShipments!
 
@@ -238,12 +238,12 @@ type Mutation {
   # Users
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
-  deleteUser(id: ID!): User!
+  deleteUser(id: String!): User!
 
   # Shipments
   createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
   updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
-  removeShipment(id: ID!): Shipment!
-  assignDriver(shipmentId: ID!, driverId: ID!): Shipment!
-  flagShipment(id: ID!): Shipment!
+  removeShipment(id: String!): Shipment!
+  assignDriver(shipmentId: String!, driverId: String!): Shipment!
+  flagShipment(id: String!): Shipment!
 }

@@ -29,6 +29,36 @@ public class AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    public AuthResponse register(User user, String plainPassword) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("User already exists with email: " + user.getEmail());
+        }
+
+        // Encode password
+        user.setPassword(passwordEncoder.encode(plainPassword));
+
+        // Set default role if not provided
+        if (user.getRole() == null) {
+            user.setRole(UserRole.CUSTOMER);
+        }
+
+        // Ensure user is active
+        if (user.getIsActive() == null) {
+            user.setIsActive(true);
+        }
+
+        user = userRepository.save(user);
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        String token = jwtUtil.generateToken(userDetails);
+
+        // Remove password from response (entity is detached after save)
+        user.setPassword(null);
+
+        return new AuthResponse(token, user);
+    }
+
+    @Deprecated
     public AuthResponse register(String email, String password, String firstName,
                                  String lastName, UserRole role, String phone) {
         if (userRepository.existsByEmail(email)) {

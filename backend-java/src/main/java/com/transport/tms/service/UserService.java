@@ -68,6 +68,26 @@ public class UserService {
     }
 
     @Transactional
+    public User createUser(User user, String plainPassword) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("User already exists with email: " + user.getEmail());
+        }
+
+        // Encode password
+        user.setPassword(passwordEncoder.encode(plainPassword));
+
+        // Ensure user is active
+        if (user.getIsActive() == null) {
+            user.setIsActive(true);
+        }
+
+        user = userRepository.save(user);
+        user.setPassword(null);
+        return user;
+    }
+
+    @Deprecated
+    @Transactional
     public User createUser(String email, String password, String firstName, String lastName,
                           UserRole role, String phone) {
         if (userRepository.existsByEmail(email)) {
@@ -88,6 +108,14 @@ public class UserService {
         return user;
     }
 
+    @Transactional
+    public User updateUser(User user) {
+        user = userRepository.save(user);
+        user.setPassword(null);
+        return user;
+    }
+
+    @Deprecated
     @Transactional
     public User updateUser(String id, String email, String firstName, String lastName,
                           UserRole role, String phone, Boolean isActive) {

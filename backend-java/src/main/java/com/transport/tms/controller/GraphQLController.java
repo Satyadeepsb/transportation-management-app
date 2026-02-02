@@ -3,10 +3,14 @@ package com.transport.tms.controller;
 import com.transport.tms.dto.AuthResponse;
 import com.transport.tms.dto.PaginatedShipments;
 import com.transport.tms.dto.PaginatedUsers;
+import com.transport.tms.dto.input.*;
+import com.transport.tms.mapper.ShipmentMapper;
+import com.transport.tms.mapper.UserMapper;
 import com.transport.tms.model.*;
 import com.transport.tms.service.AuthService;
 import com.transport.tms.service.ShipmentService;
 import com.transport.tms.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -14,8 +18,6 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -31,27 +33,23 @@ public class GraphQLController {
     @Autowired
     private ShipmentService shipmentService;
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private ShipmentMapper shipmentMapper;
+
     // ==================== Authentication ====================
 
     @MutationMapping
-    public AuthResponse register(@Argument Map<String, Object> registerInput) {
-        String email = (String) registerInput.get("email");
-        String password = (String) registerInput.get("password");
-        String firstName = (String) registerInput.get("firstName");
-        String lastName = (String) registerInput.get("lastName");
-        String roleStr = (String) registerInput.get("role");
-        UserRole role = roleStr != null ? UserRole.valueOf(roleStr) : null;
-        String phone = (String) registerInput.get("phone");
-
-        return authService.register(email, password, firstName, lastName, role, phone);
+    public AuthResponse register(@Argument @Valid RegisterInput registerInput) {
+        User user = userMapper.toEntity(registerInput);
+        return authService.register(user, registerInput.getPassword());
     }
 
     @MutationMapping
-    public AuthResponse login(@Argument Map<String, Object> loginInput) {
-        String email = (String) loginInput.get("email");
-        String password = (String) loginInput.get("password");
-
-        return authService.login(email, password);
+    public AuthResponse login(@Argument @Valid LoginInput loginInput) {
+        return authService.login(loginInput.getEmail(), loginInput.getPassword());
     }
 
     @QueryMapping
@@ -96,29 +94,16 @@ public class GraphQLController {
     // ==================== User Mutations ====================
 
     @MutationMapping
-    public User createUser(@Argument Map<String, Object> createUserInput) {
-        String email = (String) createUserInput.get("email");
-        String password = (String) createUserInput.get("password");
-        String firstName = (String) createUserInput.get("firstName");
-        String lastName = (String) createUserInput.get("lastName");
-        UserRole role = UserRole.valueOf((String) createUserInput.get("role"));
-        String phone = (String) createUserInput.get("phone");
-
-        return userService.createUser(email, password, firstName, lastName, role, phone);
+    public User createUser(@Argument @Valid CreateUserInput createUserInput) {
+        User user = userMapper.toEntity(createUserInput);
+        return userService.createUser(user, createUserInput.getPassword());
     }
 
     @MutationMapping
-    public User updateUser(@Argument Map<String, Object> updateUserInput) {
-        String id = (String) updateUserInput.get("id");
-        String email = (String) updateUserInput.get("email");
-        String firstName = (String) updateUserInput.get("firstName");
-        String lastName = (String) updateUserInput.get("lastName");
-        String roleStr = (String) updateUserInput.get("role");
-        UserRole role = roleStr != null ? UserRole.valueOf(roleStr) : null;
-        String phone = (String) updateUserInput.get("phone");
-        Boolean isActive = (Boolean) updateUserInput.get("isActive");
-
-        return userService.updateUser(id, email, firstName, lastName, role, phone, isActive);
+    public User updateUser(@Argument @Valid UpdateUserInput updateUserInput) {
+        User user = userService.findById(updateUserInput.getId());
+        userMapper.updateEntityFromInput(updateUserInput, user);
+        return userService.updateUser(user);
     }
 
     @MutationMapping
@@ -165,60 +150,18 @@ public class GraphQLController {
 
     @MutationMapping
     @Transactional
-    public Shipment createShipment(@Argument Map<String, Object> createShipmentInput) {
-        Shipment shipment = new Shipment();
-
-        // Shipper information
-        shipment.setShipperName((String) createShipmentInput.get("shipperName"));
-        shipment.setShipperPhone((String) createShipmentInput.get("shipperPhone"));
-        shipment.setShipperEmail((String) createShipmentInput.get("shipperEmail"));
-        shipment.setShipperAddress((String) createShipmentInput.get("shipperAddress"));
-        shipment.setShipperCity((String) createShipmentInput.get("shipperCity"));
-        shipment.setShipperState((String) createShipmentInput.get("shipperState"));
-        shipment.setShipperZip((String) createShipmentInput.get("shipperZip"));
-
-        // Consignee information
-        shipment.setConsigneeName((String) createShipmentInput.get("consigneeName"));
-        shipment.setConsigneePhone((String) createShipmentInput.get("consigneePhone"));
-        shipment.setConsigneeEmail((String) createShipmentInput.get("consigneeEmail"));
-        shipment.setConsigneeAddress((String) createShipmentInput.get("consigneeAddress"));
-        shipment.setConsigneeCity((String) createShipmentInput.get("consigneeCity"));
-        shipment.setConsigneeState((String) createShipmentInput.get("consigneeState"));
-        shipment.setConsigneeZip((String) createShipmentInput.get("consigneeZip"));
-
-        // Cargo information
-        shipment.setCargoDescription((String) createShipmentInput.get("cargoDescription"));
-        shipment.setWeight(((Number) createShipmentInput.get("weight")).doubleValue());
-        shipment.setDimensions((String) createShipmentInput.get("dimensions"));
-        shipment.setVehicleType(VehicleType.valueOf((String) createShipmentInput.get("vehicleType")));
-
-        // Financial
-        shipment.setEstimatedRate(((Number) createShipmentInput.get("estimatedRate")).doubleValue());
-        shipment.setCurrency((String) createShipmentInput.getOrDefault("currency", "USD"));
-
-        // Dates
-        shipment.setPickupDate(LocalDate.parse((String) createShipmentInput.get("pickupDate")));
-        shipment.setEstimatedDelivery(LocalDate.parse((String) createShipmentInput.get("estimatedDelivery")));
-
-        shipment.setNotes((String) createShipmentInput.get("notes"));
-
+    public Shipment createShipment(@Argument @Valid CreateShipmentInput createShipmentInput) {
+        Shipment shipment = shipmentMapper.toEntity(createShipmentInput);
         // In production, get userId from security context
         return shipmentService.create(shipment, "admin-user-id");
     }
 
     @MutationMapping
     @Transactional
-    public Shipment updateShipment(@Argument Map<String, Object> updateShipmentInput) {
-        String id = (String) updateShipmentInput.get("id");
-        String statusStr = (String) updateShipmentInput.get("status");
-        ShipmentStatus status = statusStr != null ? ShipmentStatus.valueOf(statusStr) : null;
-        Double actualRate = updateShipmentInput.get("actualRate") != null ?
-                ((Number) updateShipmentInput.get("actualRate")).doubleValue() : null;
-        String deliveryDateStr = (String) updateShipmentInput.get("deliveryDate");
-        LocalDate deliveryDate = deliveryDateStr != null ? LocalDate.parse(deliveryDateStr) : null;
-        String notes = (String) updateShipmentInput.get("notes");
-
-        return shipmentService.update(id, status, actualRate, deliveryDate, notes);
+    public Shipment updateShipment(@Argument @Valid UpdateShipmentInput updateShipmentInput) {
+        Shipment shipment = shipmentService.findById(updateShipmentInput.getId());
+        shipmentMapper.updateEntityFromInput(updateShipmentInput, shipment);
+        return shipmentService.updateShipment(shipment);
     }
 
     @MutationMapping
