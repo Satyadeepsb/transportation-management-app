@@ -1,0 +1,249 @@
+# User Types and Enums
+enum UserRole {
+  ADMIN
+  DISPATCHER
+  DRIVER
+  CUSTOMER
+}
+
+type User {
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  fullName: String!
+  role: UserRole!
+  phone: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+# Shipment Types and Enums
+enum ShipmentStatus {
+  PENDING
+  ASSIGNED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum VehicleType {
+  TRUCK
+  VAN
+  TRAILER
+  FLATBED
+}
+
+type Shipment {
+  id: ID!
+  trackingNumber: String!
+  status: ShipmentStatus!
+
+  # Shipper Information
+  shipperName: String!
+  shipperPhone: String!
+  shipperEmail: String
+  shipperAddress: String!
+  shipperCity: String!
+  shipperState: String!
+  shipperZip: String!
+
+  # Consignee Information
+  consigneeName: String!
+  consigneePhone: String!
+  consigneeEmail: String
+  consigneeAddress: String!
+  consigneeCity: String!
+  consigneeState: String!
+  consigneeZip: String!
+
+  # Cargo Information
+  cargoDescription: String!
+  weight: Float!
+  dimensions: String
+  vehicleType: VehicleType!
+
+  # Financial
+  estimatedRate: Float!
+  actualRate: Float
+  currency: String!
+
+  # Dates
+  pickupDate: String!
+  deliveryDate: String
+  estimatedDelivery: String!
+
+  # Relations
+  createdById: String!
+  createdBy: User
+  driverId: String
+  driver: User
+
+  notes: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+# Pagination
+type PaginationMeta {
+  total: Int!
+  page: Int!
+  limit: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type PaginatedShipments {
+  data: [Shipment!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedUsers {
+  data: [User!]!
+  meta: PaginationMeta!
+}
+
+# Authentication
+type AuthResponse {
+  accessToken: String!
+  user: User!
+}
+
+# Input Types
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  role: UserRole
+  phone: String
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  role: UserRole!
+  phone: String
+}
+
+input UpdateUserInput {
+  id: ID!
+  email: String
+  firstName: String
+  lastName: String
+  role: UserRole
+  phone: String
+  isActive: Boolean
+}
+
+input CreateShipmentInput {
+  shipperName: String!
+  shipperPhone: String!
+  shipperEmail: String
+  shipperAddress: String!
+  shipperCity: String!
+  shipperState: String!
+  shipperZip: String!
+
+  consigneeName: String!
+  consigneePhone: String!
+  consigneeEmail: String
+  consigneeAddress: String!
+  consigneeCity: String!
+  consigneeState: String!
+  consigneeZip: String!
+
+  cargoDescription: String!
+  weight: Float!
+  dimensions: String
+  vehicleType: VehicleType!
+
+  estimatedRate: Float!
+  currency: String
+
+  pickupDate: String!
+  estimatedDelivery: String!
+
+  notes: String
+}
+
+input UpdateShipmentInput {
+  id: ID!
+  status: ShipmentStatus
+  actualRate: Float
+  deliveryDate: String
+  notes: String
+}
+
+input ShipmentFilterInput {
+  status: ShipmentStatus
+  trackingNumber: String
+  createdById: String
+  driverId: String
+  shipperCity: String
+  consigneeCity: String
+  search: String
+  vehicleType: VehicleType
+}
+
+input PaginationInput {
+  page: Int
+  limit: Int
+  sortBy: String
+  sortOrder: String
+}
+
+input UserFilterInput {
+  role: UserRole
+  isActive: Boolean
+  search: String
+}
+
+# Queries
+type Query {
+  # Authentication
+  me: User!
+
+  # Users
+  users(filter: UserFilterInput, pagination: PaginationInput): PaginatedUsers!
+  user(id: ID!): User!
+  drivers: [User!]!
+
+  # Shipments
+  shipments(filter: ShipmentFilterInput, pagination: PaginationInput): PaginatedShipments!
+  shipment(id: ID!): Shipment!
+  trackShipment(trackingNumber: String!): Shipment!
+  myShipments(pagination: PaginationInput): PaginatedShipments!
+
+  # Health Check
+  health: String!
+}
+
+# Mutations
+type Mutation {
+  # Authentication
+  register(registerInput: RegisterInput!): AuthResponse!
+  login(loginInput: LoginInput!): AuthResponse!
+
+  # Users
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  deleteUser(id: ID!): User!
+
+  # Shipments
+  createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
+  updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
+  removeShipment(id: ID!): Shipment!
+  assignDriver(shipmentId: ID!, driverId: ID!): Shipment!
+  flagShipment(id: ID!): Shipment!
+}

@@ -1,0 +1,13 @@
+# Docker-specific configuration
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/tms_database
+    username: tms_user
+    password: tms_password_change_in_production
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.transport.tms: INFO

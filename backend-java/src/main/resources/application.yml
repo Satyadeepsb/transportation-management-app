@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: Transportation Management System
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/tms_database}
+    username: ${DB_USERNAME:tms_user}
+    password: ${DB_PASSWORD:tms_password_change_in_production}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        globally_quoted_identifiers: true
+    open-in-view: false
+
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    path: /graphql
+    schema:
+      printer:
+        enabled: true
+
+  security:
+    user:
+      name: admin
+      password: admin
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+jwt:
+  secret: ${JWT_SECRET:your-super-secret-jwt-key-change-in-production-minimum-32-characters}
+  expiration: ${JWT_EXPIRES_IN:604800000}
+
+logging:
+  level:
+    com.transport.tms: INFO
+    org.springframework.graphql: DEBUG
+    org.hibernate.SQL: DEBUG

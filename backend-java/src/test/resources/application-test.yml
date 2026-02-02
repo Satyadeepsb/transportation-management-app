@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: Transportation Management System (Test)
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        globally_quoted_identifiers: true
+    open-in-view: false
+
+  h2:
+    console:
+      enabled: false
+
+  graphql:
+    graphiql:
+      enabled: false
+
+jwt:
+  secret: test-secret-key-must-be-at-least-32-characters-long-for-testing
+  expiration: 3600000
+
+logging:
+  level:
+    com.transport.tms: INFO
+    org.springframework.graphql: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
