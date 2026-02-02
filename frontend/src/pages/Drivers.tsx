@@ -18,7 +18,7 @@ export default function Drivers() {
     return null;
   }
 
-  const { data, loading, error } = useQuery<{ users: User[] }>(GET_USERS_QUERY);
+  const { data, loading, error } = useQuery<{ users: { data: User[]; meta: any } }>(GET_USERS_QUERY);
 
   if (loading) {
     return (
@@ -40,7 +40,7 @@ export default function Drivers() {
   }
 
   // Filter drivers and apply status filter
-  const allDrivers = (data?.users || []).filter((u) => u.role === UserRole.DRIVER);
+  const allDrivers = (data?.users.data || []).filter((u) => u.role === UserRole.DRIVER);
   const statusFilteredDrivers =
     statusFilter === 'all'
       ? allDrivers

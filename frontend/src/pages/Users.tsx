@@ -20,7 +20,7 @@ export default function Users() {
     return null;
   }
 
-  const { data, loading, error, refetch } = useQuery<{ users: User[] }>(GET_USERS_QUERY);
+  const { data, loading, error, refetch } = useQuery<{ users: { data: User[]; meta: any } }>(GET_USERS_QUERY);
 
   const [updateUser, { loading: updateLoading }] = useMutation(UPDATE_USER_MUTATION);
   const [deleteUser, { loading: deleteLoading }] = useMutation(DELETE_USER_MUTATION);
@@ -74,7 +74,7 @@ export default function Users() {
   }
 
   // Apply filters client-side
-  const allUsers = data?.users || [];
+  const allUsers = data?.users.data || [];
   const roleFilteredUsers = roleFilter
     ? allUsers.filter((u) => u.role === roleFilter)
     : allUsers;

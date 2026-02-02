@@ -12,6 +12,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -54,6 +55,7 @@ public class GraphQLController {
     }
 
     @QueryMapping
+    @Transactional(readOnly = true)
     public User me() {
         // In production, get email from security context (JWT token)
         // For now, return admin user for testing
@@ -63,6 +65,7 @@ public class GraphQLController {
     // ==================== User Queries ====================
 
     @QueryMapping
+    @Transactional(readOnly = true)
     public PaginatedUsers users(@Argument Map<String, Object> filter,
                                 @Argument Map<String, Object> pagination) {
         UserRole role = filter != null && filter.get("role") != null ?
@@ -79,11 +82,13 @@ public class GraphQLController {
     }
 
     @QueryMapping
+    @Transactional(readOnly = true)
     public User user(@Argument String id) {
         return userService.findById(id);
     }
 
     @QueryMapping
+    @Transactional(readOnly = true)
     public List<User> drivers() {
         return userService.findDrivers();
     }
@@ -124,6 +129,7 @@ public class GraphQLController {
     // ==================== Shipment Queries ====================
 
     @QueryMapping
+    @Transactional(readOnly = true)
     public PaginatedShipments shipments(@Argument Map<String, Object> filter,
                                        @Argument Map<String, Object> pagination) {
         ShipmentStatus status = filter != null && filter.get("status") != null ?
@@ -144,11 +150,13 @@ public class GraphQLController {
     }
 
     @QueryMapping
+    @Transactional(readOnly = true)
     public Shipment shipment(@Argument String id) {
         return shipmentService.findById(id);
     }
 
     @QueryMapping
+    @Transactional(readOnly = true)
     public Shipment trackShipment(@Argument String trackingNumber) {
         return shipmentService.findByTrackingNumber(trackingNumber);
     }
@@ -156,6 +164,7 @@ public class GraphQLController {
     // ==================== Shipment Mutations ====================
 
     @MutationMapping
+    @Transactional
     public Shipment createShipment(@Argument Map<String, Object> createShipmentInput) {
         Shipment shipment = new Shipment();
 
@@ -198,6 +207,7 @@ public class GraphQLController {
     }
 
     @MutationMapping
+    @Transactional
     public Shipment updateShipment(@Argument Map<String, Object> updateShipmentInput) {
         String id = (String) updateShipmentInput.get("id");
         String statusStr = (String) updateShipmentInput.get("status");
@@ -212,16 +222,19 @@ public class GraphQLController {
     }
 
     @MutationMapping
+    @Transactional
     public Shipment removeShipment(@Argument String id) {
         return shipmentService.delete(id);
     }
 
     @MutationMapping
+    @Transactional
     public Shipment assignDriver(@Argument String shipmentId, @Argument String driverId) {
         return shipmentService.assignDriver(shipmentId, driverId);
     }
 
     @MutationMapping
+    @Transactional
     public Shipment flagShipment(@Argument String id) {
         return shipmentService.flagShipment(id);
     }

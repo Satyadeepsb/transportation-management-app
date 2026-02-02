@@ -1,18 +1,31 @@
 import { gql } from '@apollo/client';
 
 export const GET_USERS_QUERY = gql`
-  query GetUsers {
-    users {
-      id
-      email
-      firstName
-      lastName
-      fullName
-      role
-      phone
-      isActive
-      createdAt
-      updatedAt
+  query GetUsers(
+    $filter: UserFilterInput
+    $pagination: PaginationInput
+  ) {
+    users(filter: $filter, pagination: $pagination) {
+      data {
+        id
+        email
+        firstName
+        lastName
+        fullName
+        role
+        phone
+        isActive
+        createdAt
+        updatedAt
+      }
+      meta {
+        total
+        page
+        limit
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
     }
   }
 `;

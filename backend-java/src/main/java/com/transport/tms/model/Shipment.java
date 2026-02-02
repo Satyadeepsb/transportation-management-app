@@ -106,13 +106,13 @@ public class Shipment {
     @Column(nullable = false)
     private String createdById;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "createdById", insertable = false, updatable = false)
     private User createdBy;
 
     private String driverId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "driverId", insertable = false, updatable = false)
     private User driver;
 
