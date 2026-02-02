@@ -1,0 +1,17 @@
+{
+  "name": "TMS - Transport Management System",
+  "short_name": "TMS",
+  "description": "Transport Management System for managing shipments, drivers, and logistics operations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#422AFB",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

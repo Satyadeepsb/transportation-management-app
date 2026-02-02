@@ -5,6 +5,7 @@ import { ToastProvider } from './components/Toast';
 import ErrorBoundary from './components/ErrorBoundary';
 import { apolloClient } from './lib/apollo-client';
 import ProtectedRoute from './components/ProtectedRoute';
+import PageTitle from './components/PageTitle';
 import AdminLayout from './layouts/admin';
 import AuthLayout from './layouts/auth';
 import TrackShipment from './pages/TrackShipment';
@@ -23,6 +24,7 @@ function App() {
         <AuthProvider>
           <ToastProvider>
             <BrowserRouter>
+              <PageTitle />
               <Routes>
                 {/* Auth routes */}
                 <Route path="/auth/*" element={<AuthLayout />} />
