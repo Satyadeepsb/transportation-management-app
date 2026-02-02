@@ -92,4 +92,15 @@ export class ShipmentResolver {
   ): Promise<ShipmentEntity> {
     return this.shipmentService.assignDriver(shipmentId, driverId);
   }
+
+  /**
+   * Flag a shipment for review (Authenticated)
+   */
+  @Mutation(() => ShipmentEntity, { description: 'Flag a shipment for review' })
+  @UseGuards(GqlAuthGuard)
+  async flagShipment(
+    @Args('id', { type: () => String }) id: string,
+  ): Promise<ShipmentEntity> {
+    return this.shipmentService.flagShipment(id);
+  }
 }

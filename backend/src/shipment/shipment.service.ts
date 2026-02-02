@@ -201,4 +201,29 @@ export class ShipmentService {
       },
     });
   }
+
+  /**
+   * Flag a shipment for review
+   */
+  async flagShipment(id: string): Promise<Shipment> {
+    // Check if shipment exists
+    const shipment = await this.findOne(id);
+
+    // Add flag marker to notes
+    const flagNote = `[FLAGGED FOR REVIEW - ${new Date().toISOString()}]`;
+    const updatedNotes = shipment.notes
+      ? `${shipment.notes}\n${flagNote}`
+      : flagNote;
+
+    return this.prisma.shipment.update({
+      where: { id },
+      data: {
+        notes: updatedNotes,
+      },
+      include: {
+        createdBy: true,
+        driver: true,
+      },
+    });
+  }
 }

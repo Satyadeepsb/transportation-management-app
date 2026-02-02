@@ -178,7 +178,7 @@ export default function Settings() {
         </div>
 
         {/* Dashboard Preferences */}
-        {user && [UserRole.ADMIN, UserRole.DISPATCHER].includes(user.role) && (
+        {user && ([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(user.role) && (
           <div className="bg-white shadow rounded-lg">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">Dashboard Preferences</h3>

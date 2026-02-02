@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_DRIVERS_QUERY, ASSIGN_DRIVER_MUTATION, GET_SHIPMENT_QUERY } from '../graphql/shipments';
 import type { User } from '../types';

@@ -83,7 +83,7 @@ export default function Notifications() {
   const handleNotificationClick = (notification: Notification) => {
     handleMarkAsRead(notification.id);
     if (notification.shipmentId) {
-      navigate(`/shipments/${notification.shipmentId}`);
+      navigate(`/admin/shipments/${notification.shipmentId}`);
       setIsOpen(false);
     }
   };

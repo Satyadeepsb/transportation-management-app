@@ -1,8 +1,10 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client/react';
 import { useAuth } from '../contexts/AuthContext';
 import { UPDATE_USER_MUTATION } from '../graphql/users';
+import type { User } from '../types';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -23,10 +25,10 @@ export default function Profile() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
 
-  const [updateUser, { loading }] = useMutation(UPDATE_USER_MUTATION);
+  const [updateUser, { loading }] = useMutation<{ updateUser: User }>(UPDATE_USER_MUTATION);
 
   if (!user) {
-    navigate('/login');
+    navigate('/auth/sign-in');
     return null;
   }
 

@@ -1,4 +1,5 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,8 +17,8 @@ export default function EditShipment() {
 
   // Check permissions
   useEffect(() => {
-    if (user && ![UserRole.ADMIN, UserRole.DISPATCHER].includes(user.role)) {
-      navigate('/shipments');
+    if (user && !([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(user.role)) {
+      navigate('/admin/shipments');
     }
   }, [user, navigate]);
 
@@ -156,7 +157,7 @@ export default function EditShipment() {
         variables: { input },
       });
 
-      navigate(`/shipments/${id}`);
+      navigate(`/admin/shipments/${id}`);
     } catch (err: any) {
       setError(err.message || 'Failed to update shipment. Please try again.');
       console.error('Update shipment error:', err);

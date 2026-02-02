@@ -26,9 +26,9 @@ export default function ShipmentDetail() {
   const shipment = data?.shipment;
 
   // Role-based permissions
-  const canEdit = user && [UserRole.ADMIN, UserRole.DISPATCHER].includes(user.role);
+  const canEdit = user && ([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(user.role);
   const canDelete = user?.role === UserRole.ADMIN;
-  const canAssignDriver = user && [UserRole.ADMIN, UserRole.DISPATCHER].includes(user.role);
+  const canAssignDriver = user && ([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(user.role);
 
   if (loading) {
     return (
@@ -59,7 +59,7 @@ export default function ShipmentDetail() {
   const handleDelete = async () => {
     try {
       await deleteShipment({ variables: { id } });
-      navigate('/shipments');
+      navigate('/admin/shipments');
     } catch (err: any) {
       console.error('Delete shipment error:', err);
       alert(err.message || 'Failed to delete shipment');
@@ -88,7 +88,7 @@ export default function ShipmentDetail() {
           <div className="flex gap-3">
             {canEdit && (
               <button
-                onClick={() => navigate(`/shipments/${id}/edit`)}
+                onClick={() => navigate(`/admin/shipments/${id}/edit`)}
                 className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Edit

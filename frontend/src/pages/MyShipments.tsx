@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { GET_SHIPMENTS_QUERY, UPDATE_SHIPMENT_MUTATION } from '../graphql/shipments';
 import StatusBadge from '../components/StatusBadge';
 import { UserRole, ShipmentStatus } from '../types';
-import type { PaginatedShipments, Shipment } from '../types';
+import type { PaginatedShipments } from '../types';
 
 export default function MyShipments() {
   const navigate = useNavigate();
@@ -118,7 +118,7 @@ export default function MyShipments() {
           <p className="text-gray-500">No shipments found</p>
           {isCustomer && (
             <button
-              onClick={() => navigate('/shipments/create')}
+              onClick={() => navigate('/admin/shipments/create')}
               className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
             >
               Create Your First Shipment
@@ -158,7 +158,7 @@ export default function MyShipments() {
                   <tr key={shipment.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
-                        onClick={() => navigate(`/shipments/${shipment.id}`)}
+                        onClick={() => navigate(`/admin/shipments/${shipment.id}`)}
                         className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
                       >
                         {shipment.trackingNumber.substring(0, 12)}...

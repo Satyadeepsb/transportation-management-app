@@ -1,15 +1,19 @@
 import { useQuery } from '@apollo/client/react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GET_SHIPMENTS_QUERY, GET_DRIVERS_QUERY } from '../graphql/shipments';
 import StatusBadge from '../components/StatusBadge';
+import ShipmentTileView from '../components/ShipmentTileView';
 import { ShipmentStatus, VehicleType, UserRole } from '../types';
 import type { PaginatedShipments, User } from '../types';
+
+type ViewMode = 'grid' | 'tile';
 
 export default function Shipments() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ShipmentStatus | ''>('');
@@ -18,8 +22,17 @@ export default function Shipments() {
   const [pickupDateFrom, setPickupDateFrom] = useState('');
   const [pickupDateTo, setPickupDateTo] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-  const canViewDriverFilter = user && [UserRole.ADMIN, UserRole.DISPATCHER].includes(user.role);
+  // Initialize search term from URL parameter
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [searchParams]);
+
+  const canViewDriverFilter = user && ([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(user.role);
 
   // Build filter object
   const filter: any = {};
@@ -33,7 +46,7 @@ export default function Shipments() {
     filter.driverId = driverFilter;
   }
 
-  const { data, loading, error } = useQuery<{ shipments: PaginatedShipments }>(
+  const { data, loading, error, refetch } = useQuery<{ shipments: PaginatedShipments }>(
     GET_SHIPMENTS_QUERY,
     {
       variables: {
@@ -125,9 +138,9 @@ export default function Shipments() {
               Browse and manage all shipments in the system
             </p>
           </div>
-          {user && [UserRole.ADMIN, UserRole.DISPATCHER, UserRole.CUSTOMER].includes(user.role) && (
+          {user && ([UserRole.ADMIN, UserRole.DISPATCHER, UserRole.CUSTOMER] as string[]).includes(user.role) && (
             <button
-              onClick={() => navigate('/shipments/create')}
+              onClick={() => navigate('/admin/shipments/create')}
               className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Create Shipment
@@ -136,7 +149,7 @@ export default function Shipments() {
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Search Bar and View Toggle */}
       <div className="mb-4">
         <div className="flex gap-3 items-center">
           <div className="flex-1">
@@ -148,6 +161,37 @@ export default function Shipments() {
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex border border-gray-300 rounded-md overflow-hidden">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-2 text-sm font-medium transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+              title="Grid View"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode('tile')}
+              className={`px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 ${
+                viewMode === 'tile'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+              title="Tile View"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+              </svg>
+            </button>
+          </div>
+
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2 border text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
@@ -252,7 +296,7 @@ export default function Shipments() {
         </div>
       )}
 
-      {/* Shipments Table */}
+      {/* Shipments Grid/Tile View */}
       {dateFilteredShipments.length === 0 ? (
         <div className="bg-white shadow rounded-lg p-8 text-center">
           <p className="text-gray-500">
@@ -269,6 +313,12 @@ export default function Shipments() {
             </button>
           )}
         </div>
+      ) : viewMode === 'tile' ? (
+        <ShipmentTileView
+          shipments={dateFilteredShipments}
+          user={user}
+          onRefetch={() => refetch()}
+        />
       ) : (
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <table className="min-w-full divide-y divide-gray-200">
@@ -301,7 +351,7 @@ export default function Shipments() {
               {dateFilteredShipments.map((shipment) => (
                 <tr
                   key={shipment.id}
-                  onClick={() => navigate(`/shipments/${shipment.id}`)}
+                  onClick={() => navigate(`/admin/shipments/${shipment.id}`)}
                   className="hover:bg-gray-50 cursor-pointer"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">

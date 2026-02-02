@@ -1,4 +1,4 @@
-import { FormEvent, ChangeEvent } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import { VehicleType } from '../types';
 
 export interface ShipmentFormData {

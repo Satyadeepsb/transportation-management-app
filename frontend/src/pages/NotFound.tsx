@@ -23,7 +23,7 @@ export default function NotFound() {
             Go Back
           </button>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/admin/default')}
             className="px-6 py-3 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
           >
             Go to Dashboard
@@ -41,7 +41,7 @@ export default function NotFound() {
             </button>
             <span>•</span>
             <button
-              onClick={() => navigate('/my-shipments')}
+              onClick={() => navigate('/admin/my-shipments')}
               className="text-indigo-600 hover:text-indigo-800 font-medium"
             >
               My Shipments

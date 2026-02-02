@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client/react';
 import { CREATE_SHIPMENT_MUTATION } from '../graphql/shipments';
@@ -40,7 +41,7 @@ export default function CreateShipment() {
     notes: '',
   });
 
-  const [createShipment, { loading }] = useMutation(CREATE_SHIPMENT_MUTATION);
+  const [createShipment, { loading }] = useMutation<{ createShipment: { id: string } }>(CREATE_SHIPMENT_MUTATION);
 
   const handleChange = (field: keyof ShipmentFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -119,7 +120,7 @@ export default function CreateShipment() {
 
       if (data?.createShipment) {
         // Navigate to shipment detail page
-        navigate(`/shipments/${data.createShipment.id}`);
+        navigate(`/admin/shipments/${data.createShipment.id}`);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to create shipment. Please try again.');

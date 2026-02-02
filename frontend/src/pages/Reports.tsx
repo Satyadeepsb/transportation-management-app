@@ -16,8 +16,8 @@ export default function Reports() {
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState<VehicleType | ''>('');
 
   // Only ADMIN and DISPATCHER can access this page
-  if (user && ![UserRole.ADMIN, UserRole.DISPATCHER].includes(user.role)) {
-    navigate('/dashboard');
+  if (user && !([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(user.role)) {
+    navigate('/admin/default');
     return null;
   }
 

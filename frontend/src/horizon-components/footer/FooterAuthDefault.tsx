@@ -1,0 +1,48 @@
+/*eslint-disable*/
+export default function Footer() {
+  return (
+    <div className="z-[5] mx-auto flex w-full max-w-screen-sm flex-col items-center justify-between px-[20px] pb-4 lg:mb-6 lg:max-w-[100%] lg:flex-row xl:mb-2 xl:w-[1310px] xl:pb-6">
+      <p className="mb-4 text-center text-sm font-medium text-navy-700 dark:text-white md:text-base lg:mb-0">
+        ©3926 Horizon UI. All Rights Reserved.
+      </p>
+      <ul className="flex flex-wrap items-center justify-center gap-6 sm:flex-nowrap sm:gap-12">
+        <li>
+          <a
+            target="blank"
+            href="mailto:hello@simmmple.com"
+            className="text-sm font-medium text-navy-700 hover:text-brand-500 dark:text-white dark:hover:text-brand-400 md:text-base"
+          >
+            Support
+          </a>
+        </li>
+        <li>
+          <a
+            target="blank"
+            href="https://simmmple.com/licenses"
+            className="text-sm font-medium text-navy-700 hover:text-brand-500 dark:text-white dark:hover:text-brand-400 md:text-base"
+          >
+            License
+          </a>
+        </li>
+        <li>
+          <a
+            target="blank"
+            href="https://simmmple.com/terms-of-service"
+            className="text-sm font-medium text-navy-700 hover:text-brand-500 dark:text-white dark:hover:text-brand-400 md:text-base"
+          >
+            Terms of Use
+          </a>
+        </li>
+        <li>
+          <a
+            target="blank"
+            href="https://blog.horizon-ui.com/"
+            className="text-sm font-medium text-navy-700 hover:text-brand-500 dark:text-white dark:hover:text-brand-400 md:text-base"
+          >
+            Blog
+          </a>
+        </li>
+      </ul>
+    </div>
+  );
+}

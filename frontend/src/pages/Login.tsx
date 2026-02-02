@@ -1,6 +1,9 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Card from '../horizon-components/card';
+// import InputField from '../horizon-components/fields/InputField';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -18,7 +21,7 @@ export default function Login() {
 
     try {
       await login({ email, password });
-      navigate('/dashboard');
+      navigate('/admin/default');
     } catch (err: any) {
       setError(err.message || 'Invalid credentials');
     } finally {
@@ -27,87 +30,82 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <Card extra="w-full px-8 py-10">
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-navy-700 dark:text-white">
+          Sign In
+        </h2>
+        <p className="mt-2 text-base text-gray-600 dark:text-gray-400">
+          Enter your email and password to sign in
+        </p>
+      </div>
+
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        {error && (
+          <div className="rounded-xl bg-red-50 p-4 dark:bg-red-900/20">
+            <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+          </div>
+        )}
+
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Transportation Management
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your account
-          </p>
+          <label htmlFor="email" className="ml-1.5 text-sm font-medium text-navy-700 dark:text-white">
+            Email*
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            className="mt-2 flex h-12 w-full items-center justify-center rounded-xl border border-gray-200 bg-white/0 p-3 text-sm outline-none dark:border-white/10 dark:text-white"
+            placeholder="mail@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          )}
+        <div>
+          <label htmlFor="password" className="ml-1.5 text-sm font-medium text-navy-700 dark:text-white">
+            Password*
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            className="mt-2 flex h-12 w-full items-center justify-center rounded-xl border border-gray-200 bg-white/0 p-3 text-sm outline-none dark:border-white/10 dark:text-white"
+            placeholder="Min. 6 characters"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="linear mt-4 w-full rounded-xl bg-brand-500 py-3 text-base font-medium text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 disabled:bg-gray-400 dark:bg-brand-400 dark:text-white dark:hover:bg-brand-300 dark:active:bg-brand-200"
+        >
+          {loading ? 'Signing in...' : 'Sign In'}
+        </button>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
+        <div className="text-sm text-center">
+          <span className="text-gray-600 dark:text-gray-400">Not registered yet? </span>
+          <Link
+            to="/auth/sign-up"
+            className="font-medium text-brand-500 hover:text-brand-600 dark:text-brand-400"
+          >
+            Create an Account
+          </Link>
+        </div>
 
-          <div className="text-sm text-center">
-            <span className="text-gray-600">Don't have an account? </span>
-            <Link
-              to="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Register here
-            </Link>
+        <Card extra="mt-6 p-4 bg-lightPrimary dark:bg-navy-700">
+          <p className="mb-2 text-xs font-bold text-navy-700 dark:text-white">Test Accounts:</p>
+          <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+            <p><span className="font-semibold">Admin:</span> admin@transport.com / password123</p>
+            <p><span className="font-semibold">Dispatcher:</span> dispatcher@transport.com / password123</p>
+            <p><span className="font-semibold">Customer:</span> customer@example.com / password123</p>
           </div>
-
-          <div className="mt-4 p-4 bg-blue-50 rounded-md">
-            <p className="text-xs text-blue-800 font-semibold mb-2">Test Accounts:</p>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p>Admin: admin@transport.com / password123</p>
-              <p>Dispatcher: dispatcher@transport.com / password123</p>
-              <p>Customer: customer@example.com / password123</p>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
+        </Card>
+      </form>
+    </Card>
   );
 }

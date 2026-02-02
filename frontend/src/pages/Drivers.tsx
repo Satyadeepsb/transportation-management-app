@@ -13,8 +13,8 @@ export default function Drivers() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Only ADMIN and DISPATCHER can access this page
-  if (currentUser && ![UserRole.ADMIN, UserRole.DISPATCHER].includes(currentUser.role)) {
-    navigate('/dashboard');
+  if (currentUser && !([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(currentUser.role)) {
+    navigate('/admin/default');
     return null;
   }
 
@@ -69,7 +69,7 @@ export default function Drivers() {
           </div>
           {currentUser?.role === UserRole.ADMIN && (
             <button
-              onClick={() => navigate('/users/create')}
+              onClick={() => navigate('/admin/users/create')}
               className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Add Driver
@@ -166,7 +166,7 @@ export default function Drivers() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-3">
                         <button
-                          onClick={() => navigate(`/users/${driver.id}/edit`)}
+                          onClick={() => navigate(`/admin/users/${driver.id}/edit`)}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           View Details

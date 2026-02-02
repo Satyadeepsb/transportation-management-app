@@ -50,7 +50,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
           {/* User Profile */}
           <button
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate('/admin/profile')}
             className="flex items-center gap-3 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors"
           >
             <span className="text-sm text-gray-700 font-medium">{user?.fullName}</span>

@@ -1,16 +1,15 @@
 import { useQuery } from '@apollo/client/react';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GET_SHIPMENTS_QUERY, GET_DRIVERS_QUERY } from '../graphql/shipments';
 import StatusBadge from '../components/StatusBadge';
-import { ShipmentStatus, VehicleType, UserRole } from '../types';
+import { ShipmentStatus, UserRole } from '../types';
 import type { PaginatedShipments, User } from '../types';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const canViewAnalytics = user && [UserRole.ADMIN, UserRole.DISPATCHER].includes(user.role);
+  const canViewAnalytics = user && ([UserRole.ADMIN, UserRole.DISPATCHER] as string[]).includes(user.role);
 
   // Fetch recent shipments for dashboard (no filters, just first page)
   const { data, loading, error } = useQuery<{ shipments: PaginatedShipments }>(
@@ -92,7 +91,7 @@ export default function Dashboard() {
             </p>
           </div>
           <button
-            onClick={() => navigate('/shipments/create')}
+            onClick={() => navigate('/admin/shipments/create')}
             className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Create Shipment
@@ -266,7 +265,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium text-gray-900">Recent Shipments</h3>
           <button
-            onClick={() => navigate('/shipments')}
+            onClick={() => navigate('/admin/shipments')}
             className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
           >
             View All →
@@ -302,7 +301,7 @@ export default function Dashboard() {
               {recentShipments.map((shipment) => (
                 <tr
                   key={shipment.id}
-                  onClick={() => navigate(`/shipments/${shipment.id}`)}
+                  onClick={() => navigate(`/admin/shipments/${shipment.id}`)}
                   className="hover:bg-gray-50 cursor-pointer"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">

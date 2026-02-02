@@ -1,10 +1,12 @@
 // User Types
-export enum UserRole {
-  ADMIN = 'ADMIN',
-  DISPATCHER = 'DISPATCHER',
-  DRIVER = 'DRIVER',
-  CUSTOMER = 'CUSTOMER',
-}
+export const UserRole = {
+  ADMIN: 'ADMIN',
+  DISPATCHER: 'DISPATCHER',
+  DRIVER: 'DRIVER',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type UserRole = typeof UserRole[keyof typeof UserRole];
 
 export interface User {
   id: string;
@@ -20,21 +22,25 @@ export interface User {
 }
 
 // Shipment Types
-export enum ShipmentStatus {
-  PENDING = 'PENDING',
-  ASSIGNED = 'ASSIGNED',
-  PICKED_UP = 'PICKED_UP',
-  IN_TRANSIT = 'IN_TRANSIT',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED',
-}
+export const ShipmentStatus = {
+  PENDING: 'PENDING',
+  ASSIGNED: 'ASSIGNED',
+  PICKED_UP: 'PICKED_UP',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+} as const;
 
-export enum VehicleType {
-  TRUCK = 'TRUCK',
-  VAN = 'VAN',
-  TRAILER = 'TRAILER',
-  FLATBED = 'FLATBED',
-}
+export type ShipmentStatus = typeof ShipmentStatus[keyof typeof ShipmentStatus];
+
+export const VehicleType = {
+  TRUCK: 'TRUCK',
+  VAN: 'VAN',
+  TRAILER: 'TRAILER',
+  FLATBED: 'FLATBED',
+} as const;
+
+export type VehicleType = typeof VehicleType[keyof typeof VehicleType];
 
 export interface Shipment {
   id: string;
@@ -144,4 +150,16 @@ export interface UpdateUserInput {
 export interface PaginatedUsers {
   data: User[];
   meta: PaginationMeta;
+}
+
+// Route Types
+export interface RouteType {
+  name: string;
+  layout: string;
+  path: string;
+  icon: JSX.Element;
+  component: JSX.Element;
+  secondary?: boolean;
+  allowedRoles?: UserRole[]; // Roles that can access this route
+  showInMenu?: boolean; // Whether to show in sidebar menu (default: true)
 }

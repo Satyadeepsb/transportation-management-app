@@ -11,16 +11,25 @@ export const GET_SHIPMENTS_QUERY = gql`
         trackingNumber
         status
         shipperName
+        shipperEmail
+        shipperPhone
+        shipperAddress
         shipperCity
         shipperState
+        shipperZip
         consigneeName
+        consigneeEmail
+        consigneePhone
+        consigneeAddress
         consigneeCity
         consigneeState
+        consigneeZip
         cargoDescription
         weight
         vehicleType
         estimatedRate
         pickupDate
+        deliveryDate
         estimatedDelivery
         createdBy {
           fullName
@@ -30,6 +39,7 @@ export const GET_SHIPMENTS_QUERY = gql`
           id
           fullName
           phone
+          email
         }
         createdAt
       }
@@ -166,6 +176,15 @@ export const GET_DRIVERS_QUERY = gql`
       fullName
       phone
       email
+    }
+  }
+`;
+
+export const FLAG_SHIPMENT_MUTATION = gql`
+  mutation FlagShipment($id: String!) {
+    flagShipment(id: $id) {
+      id
+      trackingNumber
     }
   }
 `;

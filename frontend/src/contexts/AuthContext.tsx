@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { LOGIN_MUTATION, REGISTER_MUTATION, GET_ME_QUERY } from '../graphql/auth';
 import type { User, LoginInput, RegisterInput, AuthResponse } from '../types';
@@ -21,24 +22,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // Get current user on mount
-  const { data: meData, loading: meLoading } = useQuery(GET_ME_QUERY, {
+  const { data: meData, loading: meLoading, error: meError } = useQuery<{ me: User }>(GET_ME_QUERY, {
     skip: !localStorage.getItem('token'),
-    onError: () => {
-      // Token invalid, clear it
-      localStorage.removeItem('token');
-      setUser(null);
-    },
   });
 
   const [loginMutation] = useMutation<{ login: AuthResponse }>(LOGIN_MUTATION);
   const [registerMutation] = useMutation<{ register: AuthResponse }>(REGISTER_MUTATION);
 
   useEffect(() => {
-    if (meData?.me) {
+    if (meError) {
+      // Token invalid, clear it
+      localStorage.removeItem('token');
+      setUser(null);
+      setLoading(false);
+    } else if (meData?.me) {
       setUser(meData.me);
+      setLoading(meLoading);
+    } else {
+      setLoading(meLoading);
     }
-    setLoading(meLoading);
-  }, [meData, meLoading]);
+  }, [meData, meLoading, meError]);
 
   const login = async (input: LoginInput) => {
     try {

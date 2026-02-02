@@ -1,4 +1,5 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect,  } from 'react'
+import type { FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,7 +24,7 @@ export default function EditUser() {
 
   // Only ADMIN can access this page
   if (currentUser?.role !== UserRole.ADMIN) {
-    navigate('/dashboard');
+    navigate('/admin/default');
     return null;
   }
 
@@ -96,7 +97,7 @@ export default function EditUser() {
           },
         },
       });
-      navigate('/users');
+      navigate('/admin/users');
     } catch (err: any) {
       console.error('Update user error:', err);
       alert(err.message || 'Failed to update user');
@@ -301,7 +302,7 @@ export default function EditUser() {
           <div className="pt-6 border-t border-gray-200 flex justify-end gap-3">
             <button
               type="button"
-              onClick={() => navigate('/users')}
+              onClick={() => navigate('/admin/users')}
               className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Cancel

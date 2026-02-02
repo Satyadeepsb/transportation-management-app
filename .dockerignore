@@ -1,0 +1,36 @@
+# Root .dockerignore
+# Applied to all build contexts
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.*
+!.env.docker.example

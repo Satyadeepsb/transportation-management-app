@@ -16,7 +16,7 @@ export default function Users() {
 
   // Only ADMIN can access this page
   if (currentUser?.role !== UserRole.ADMIN) {
-    navigate('/dashboard');
+    navigate('/admin/default');
     return null;
   }
 
@@ -97,7 +97,7 @@ export default function Users() {
             </p>
           </div>
           <button
-            onClick={() => navigate('/users/create')}
+            onClick={() => navigate('/admin/users/create')}
             className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Create User
@@ -201,7 +201,7 @@ export default function Users() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => navigate(`/users/${user.id}/edit`)}
+                          onClick={() => navigate(`/admin/users/${user.id}/edit`)}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit

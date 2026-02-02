@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState,  } from 'react'
+import type { FormEvent } from 'react';
 import { useLazyQuery } from '@apollo/client/react';
 import { TRACK_SHIPMENT_QUERY } from '../graphql/shipments';
 import StatusBadge from '../components/StatusBadge';

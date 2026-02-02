@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: tms-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tms_user
+      POSTGRES_PASSWORD: tms_dev_password
+      POSTGRES_DB: tms_dev_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - tms-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tms_user -d tms_dev_database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (Development with Hot Reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: tms-backend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js debugger port
+    environment:
+      # Database
+      DATABASE_URL: postgresql://tms_user:tms_dev_password@postgres:5432/tms_dev_database
+
+      # JWT Configuration
+      JWT_SECRET: dev-jwt-secret-not-for-production
+      JWT_EXPIRES_IN: 7d
+
+      # Server
+      PORT: 3000
+      NODE_ENV: development
+    volumes:
+      # Mount source code for hot reload
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      # Exclude node_modules
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tms-dev-network
+    command: npm run start:dev
+
+  # Frontend (Development with Vite HMR)
+  frontend:
+    image: node:20-alpine
+    container_name: tms-frontend-dev
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend:/app
+      # Exclude node_modules
+      - /app/node_modules
+    networks:
+      - tms-dev-network
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+
+volumes:
+  postgres_dev_data:
+    driver: local
+
+networks:
+  tms-dev-network:
+    driver: bridge
