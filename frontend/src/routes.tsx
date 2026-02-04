@@ -13,7 +13,7 @@ import {
 } from 'react-icons/md';
 
 // Pages
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/DashboardModern';
 import Shipments from './pages/Shipments';
 import MyShipments from './pages/MyShipments';
 import CreateShipment from './pages/CreateShipment';

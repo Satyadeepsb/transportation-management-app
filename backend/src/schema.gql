@@ -49,6 +49,9 @@ type Mutation {
   """Create a new shipment"""
   createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
 
+  """Flag a shipment for review"""
+  flagShipment(id: String!): Shipment!
+
   """Login with email and password"""
   login(loginInput: LoginInput!): AuthResponse!
 
@@ -64,6 +67,11 @@ type Mutation {
 
 type PaginatedShipmentsResponse {
   data: [Shipment!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedUsersResponse {
+  data: [User!]!
   meta: PaginationMeta!
 }
 
@@ -102,8 +110,8 @@ type Query {
   """Get a single user by ID"""
   user(id: String!): User!
 
-  """Get all users with optional role filter"""
-  users(role: UserRole): [User!]!
+  """Get paginated list of users with optional filters"""
+  users(filter: UserFilterInput, pagination: PaginationInput): PaginatedUsersResponse!
 }
 
 input RegisterInput {
@@ -211,6 +219,12 @@ type User {
   phone: String
   role: UserRole!
   updatedAt: DateTime!
+}
+
+input UserFilterInput {
+  isActive: Boolean
+  role: UserRole
+  search: String
 }
 
 """User role for access control"""

@@ -1,7 +1,9 @@
 import { Resolver, Query, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
-import { UserRole } from '@prisma/client';
+import { UserFilterInput } from './dto/user-filter.input';
+import { PaginationInput } from '../shipment/dto/shipment-filter.input';
+import { PaginatedUsersResponse } from './entities/paginated-users.entity';
 
 @Resolver(() => UserEntity)
 export class UsersResolver {
@@ -16,13 +18,14 @@ export class UsersResolver {
   }
 
   /**
-   * Get all users
+   * Get all users with pagination and filtering
    */
-  @Query(() => [UserEntity], { description: 'Get all users with optional role filter' })
+  @Query(() => PaginatedUsersResponse, { description: 'Get paginated list of users with optional filters' })
   async users(
-    @Args('role', { type: () => UserRole, nullable: true }) role?: UserRole,
-  ): Promise<UserEntity[]> {
-    return this.usersService.findAll(role);
+    @Args('filter', { type: () => UserFilterInput, nullable: true }) filter?: UserFilterInput,
+    @Args('pagination', { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput,
+  ): Promise<PaginatedUsersResponse> {
+    return this.usersService.findAllPaginated(filter, pagination);
   }
 
   /**

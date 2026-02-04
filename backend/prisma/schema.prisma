@@ -1,8 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "binary"
 }
 
@@ -10,9 +7,61 @@ datasource db {
   provider = "postgresql"
 }
 
-// ============================================
-// ENUMS
-// ============================================
+model User {
+  id                String     @id @default(cuid()) @db.VarChar(255)
+  createdAt         DateTime   @db.Timestamptz(6)
+  email             String     @unique(map: "UK6j5t70rd2eub907qysjvvd76n") @db.VarChar(255)
+  firstName         String     @db.VarChar(255)
+  isActive          Boolean
+  lastName          String     @db.VarChar(255)
+  password          String     @db.VarChar(255)
+  phone             String?    @db.VarChar(255)
+  role              String     @db.VarChar(255)
+  updatedAt         DateTime   @updatedAt @db.Timestamptz(6)
+  shipmentsCreated  Shipment[] @relation("ShipmentCreator")
+  shipmentsAssigned Shipment[] @relation("AssignedDriver")
+
+  @@map("users")
+}
+
+model Shipment {
+  id                String    @id @default(cuid()) @db.VarChar(255)
+  actualRate        Float?
+  cargoDescription  String    @db.VarChar(255)
+  consigneeAddress  String    @db.VarChar(255)
+  consigneeCity     String    @db.VarChar(255)
+  consigneeEmail    String?   @db.VarChar(255)
+  consigneeName     String    @db.VarChar(255)
+  consigneePhone    String    @db.VarChar(255)
+  consigneeState    String    @db.VarChar(255)
+  consigneeZip      String    @db.VarChar(255)
+  createdAt         DateTime  @db.Timestamptz(6)
+  createdById       String    @db.VarChar(255)
+  currency          String    @db.VarChar(255)
+  deliveryDate      DateTime? @db.Date
+  dimensions        String?   @db.VarChar(255)
+  driverId          String?   @db.VarChar(255)
+  estimatedDelivery DateTime  @db.Date
+  estimatedRate     Float
+  notes             String?   @db.VarChar(2000)
+  pickupDate        DateTime  @db.Date
+  shipperAddress    String    @db.VarChar(255)
+  shipperCity       String    @db.VarChar(255)
+  shipperEmail      String?   @db.VarChar(255)
+  shipperName       String    @db.VarChar(255)
+  shipperPhone      String    @db.VarChar(255)
+  shipperState      String    @db.VarChar(255)
+  shipperZip        String    @db.VarChar(255)
+  status            String    @db.VarChar(255)
+  trackingNumber    String    @unique(map: "UK56euky1jo4p7jbdyoda1q6d41") @default(cuid()) @db.VarChar(255)
+  updatedAt         DateTime  @updatedAt @db.Timestamptz(6)
+  vehicleType       String    @db.VarChar(255)
+  weight            Float
+  createdBy         User      @relation("ShipmentCreator", fields: [createdById], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKnnqkgqc6scnxtnowjuw6wmhrl")
+  driver            User?     @relation("AssignedDriver", fields: [driverId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKr0f3t9p25dgrkshev3x2lugl0")
+
+  @@map("shipments")
+}
 
 enum UserRole {
   ADMIN
@@ -35,86 +84,4 @@ enum VehicleType {
   VAN
   TRAILER
   FLATBED
-}
-
-// ============================================
-// MODELS
-// ============================================
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String   // Will be hashed
-  firstName String
-  lastName  String
-  role      UserRole @default(CUSTOMER)
-  phone     String?
-  isActive  Boolean  @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  shipmentsCreated Shipment[] @relation("ShipmentCreator")
-  shipmentsAssigned Shipment[] @relation("AssignedDriver")
-
-  @@map("users")
-}
-
-model Shipment {
-  id              String          @id @default(cuid())
-  trackingNumber  String          @unique @default(cuid())
-  status          ShipmentStatus  @default(PENDING)
-
-  // Shipper Information
-  shipperName     String
-  shipperPhone    String
-  shipperEmail    String?
-  shipperAddress  String
-  shipperCity     String
-  shipperState    String
-  shipperZip      String
-
-  // Consignee Information
-  consigneeName   String
-  consigneePhone  String
-  consigneeEmail  String?
-  consigneeAddress String
-  consigneeCity   String
-  consigneeState  String
-  consigneeZip    String
-
-  // Cargo Details
-  cargoDescription String
-  weight          Float           // in kg
-  dimensions      String?         // e.g., "10x5x3 meters"
-  vehicleType     VehicleType
-
-  // Financial
-  estimatedRate   Float
-  actualRate      Float?
-  currency        String          @default("USD")
-
-  // Dates
-  pickupDate      DateTime
-  deliveryDate    DateTime?
-  estimatedDelivery DateTime
-
-  // Relationships
-  createdById     String
-  createdBy       User            @relation("ShipmentCreator", fields: [createdById], references: [id])
-
-  driverId        String?
-  driver          User?           @relation("AssignedDriver", fields: [driverId], references: [id])
-
-  // Metadata
-  notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-
-  @@index([status])
-  @@index([trackingNumber])
-  @@index([createdById])
-  @@index([driverId])
-  @@map("shipments")
 }

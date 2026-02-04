@@ -1,13 +1,77 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, UserRole } from '@prisma/client';
+import { UserFilterInput } from './dto/user-filter.input';
+import { PaginationInput } from '../shipment/dto/shipment-filter.input';
+import { PaginatedUsersResponse } from './entities/paginated-users.entity';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * Find all users (with optional role filter)
+   * Find all users with pagination and filtering
+   */
+  async findAllPaginated(
+    filter?: UserFilterInput,
+    pagination?: PaginationInput,
+  ): Promise<PaginatedUsersResponse> {
+    const page = pagination?.page || 1;
+    const limit = pagination?.limit || 10;
+    const skip = (page - 1) * limit;
+    const sortBy = pagination?.sortBy || 'createdAt';
+    const sortOrder = pagination?.sortOrder || 'desc';
+
+    // Build where clause
+    const where: any = {};
+
+    if (filter?.role) {
+      where.role = filter.role;
+    }
+
+    if (filter?.isActive !== undefined) {
+      where.isActive = filter.isActive;
+    }
+
+    if (filter?.search) {
+      where.OR = [
+        { email: { contains: filter.search, mode: 'insensitive' } },
+        { firstName: { contains: filter.search, mode: 'insensitive' } },
+        { lastName: { contains: filter.search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Get total count
+    const total = await this.prisma.user.count({ where });
+
+    // Get paginated data
+    const data = await this.prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { [sortBy]: sortOrder },
+    });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      },
+    };
+  }
+
+  /**
+   * Find all users (with optional role filter) - kept for backward compatibility
    */
   async findAll(role?: UserRole): Promise<User[]> {
     return this.prisma.user.findMany({

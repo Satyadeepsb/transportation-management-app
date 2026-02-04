@@ -36,6 +36,9 @@ module.exports = {
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
         dm: ["DM Sans", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Lexend", "Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
       boxShadow: {
         "3xl": "14px 17px 40px 4px",

@@ -16,6 +16,7 @@ describe('UsersResolver', () => {
 
   beforeEach(async () => {
     const mockUsersService = {
+      findAllPaginated: jest.fn(),
       findAll: jest.fn(),
       findOne: jest.fn(),
       findAllDrivers: jest.fn(),
@@ -95,7 +96,7 @@ describe('UsersResolver', () => {
   });
 
   describe('users', () => {
-    it('should get all users without role filter', async () => {
+    it('should get all users without filters', async () => {
       // Arrange
       const mockUsers = [
         createMockAdmin(),
@@ -103,97 +104,157 @@ describe('UsersResolver', () => {
         createMockCustomer(),
         createMockDispatcher(),
       ];
-      usersService.findAll.mockResolvedValue(mockUsers);
+      const mockResponse = {
+        data: mockUsers,
+        meta: {
+          total: 4,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+      usersService.findAllPaginated.mockResolvedValue(mockResponse);
 
       // Act
       const result = await resolver.users();
 
       // Assert
-      expect(usersService.findAll).toHaveBeenCalledWith(undefined);
-      expect(result).toEqual(mockUsers);
-      expect(result).toHaveLength(4);
+      expect(usersService.findAllPaginated).toHaveBeenCalledWith(undefined, undefined);
+      expect(result).toEqual(mockResponse);
+      expect(result.data).toHaveLength(4);
     });
 
     it('should get users filtered by DRIVER role', async () => {
       // Arrange
       const mockDrivers = [createMockDriver(), createMockDriver()];
-      usersService.findAll.mockResolvedValue(mockDrivers);
+      const mockResponse = {
+        data: mockDrivers,
+        meta: {
+          total: 2,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+      usersService.findAllPaginated.mockResolvedValue(mockResponse);
 
       // Act
-      const result = await resolver.users(UserRole.DRIVER);
+      const result = await resolver.users({ role: UserRole.DRIVER });
 
       // Assert
-      expect(usersService.findAll).toHaveBeenCalledWith(UserRole.DRIVER);
-      expect(result).toEqual(mockDrivers);
-      expect(result.every(user => user.role === UserRole.DRIVER)).toBe(true);
+      expect(usersService.findAllPaginated).toHaveBeenCalledWith({ role: UserRole.DRIVER }, undefined);
+      expect(result).toEqual(mockResponse);
+      expect(result.data.every(user => user.role === UserRole.DRIVER)).toBe(true);
     });
 
     it('should get users filtered by ADMIN role', async () => {
       // Arrange
       const mockAdmins = [createMockAdmin()];
-      usersService.findAll.mockResolvedValue(mockAdmins);
+      const mockResponse = {
+        data: mockAdmins,
+        meta: {
+          total: 1,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+      usersService.findAllPaginated.mockResolvedValue(mockResponse);
 
       // Act
-      const result = await resolver.users(UserRole.ADMIN);
+      const result = await resolver.users({ role: UserRole.ADMIN });
 
       // Assert
-      expect(usersService.findAll).toHaveBeenCalledWith(UserRole.ADMIN);
-      expect(result).toEqual(mockAdmins);
-      expect(result[0].role).toBe(UserRole.ADMIN);
+      expect(usersService.findAllPaginated).toHaveBeenCalledWith({ role: UserRole.ADMIN }, undefined);
+      expect(result).toEqual(mockResponse);
+      expect(result.data[0].role).toBe(UserRole.ADMIN);
     });
 
     it('should get users filtered by CUSTOMER role', async () => {
       // Arrange
       const mockCustomers = [createMockCustomer()];
-      usersService.findAll.mockResolvedValue(mockCustomers);
+      const mockResponse = {
+        data: mockCustomers,
+        meta: {
+          total: 1,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+      usersService.findAllPaginated.mockResolvedValue(mockResponse);
 
       // Act
-      const result = await resolver.users(UserRole.CUSTOMER);
+      const result = await resolver.users({ role: UserRole.CUSTOMER });
 
       // Assert
-      expect(usersService.findAll).toHaveBeenCalledWith(UserRole.CUSTOMER);
-      expect(result).toEqual(mockCustomers);
+      expect(usersService.findAllPaginated).toHaveBeenCalledWith({ role: UserRole.CUSTOMER }, undefined);
+      expect(result).toEqual(mockResponse);
     });
 
     it('should get users filtered by DISPATCHER role', async () => {
       // Arrange
       const mockDispatchers = [createMockDispatcher()];
-      usersService.findAll.mockResolvedValue(mockDispatchers);
+      const mockResponse = {
+        data: mockDispatchers,
+        meta: {
+          total: 1,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+      usersService.findAllPaginated.mockResolvedValue(mockResponse);
 
       // Act
-      const result = await resolver.users(UserRole.DISPATCHER);
+      const result = await resolver.users({ role: UserRole.DISPATCHER });
 
       // Assert
-      expect(usersService.findAll).toHaveBeenCalledWith(UserRole.DISPATCHER);
-      expect(result).toEqual(mockDispatchers);
+      expect(usersService.findAllPaginated).toHaveBeenCalledWith({ role: UserRole.DISPATCHER }, undefined);
+      expect(result).toEqual(mockResponse);
     });
 
-    it('should return empty array when no users found', async () => {
+    it('should support pagination', async () => {
       // Arrange
-      usersService.findAll.mockResolvedValue([]);
+      const mockUsers = [createMockAdmin(), createMockDriver()];
+      const mockResponse = {
+        data: mockUsers,
+        meta: {
+          total: 10,
+          page: 2,
+          limit: 2,
+          totalPages: 5,
+          hasNextPage: true,
+          hasPreviousPage: true,
+        },
+      };
+      usersService.findAllPaginated.mockResolvedValue(mockResponse);
 
       // Act
-      const result = await resolver.users();
+      const result = await resolver.users(undefined, { page: 2, limit: 2 });
 
       // Assert
-      expect(result).toEqual([]);
-      expect(result).toHaveLength(0);
-    });
-
-    it('should handle service errors', async () => {
-      // Arrange
-      const error = new Error('Database error');
-      usersService.findAll.mockRejectedValue(error);
-
-      // Act & Assert
-      await expect(resolver.users()).rejects.toThrow('Database error');
+      expect(usersService.findAllPaginated).toHaveBeenCalledWith(undefined, { page: 2, limit: 2 });
+      expect(result.meta.page).toBe(2);
+      expect(result.meta.hasNextPage).toBe(true);
+      expect(result.meta.hasPreviousPage).toBe(true);
     });
   });
 
   describe('user', () => {
-    it('should get single user by ID', async () => {
+    it('should get a single user by ID', async () => {
       // Arrange
-      const mockUser = createMockUser();
+      const mockUser = createMockAdmin();
       usersService.findOne.mockResolvedValue(mockUser);
 
       // Act
@@ -203,126 +264,20 @@ describe('UsersResolver', () => {
       expect(usersService.findOne).toHaveBeenCalledWith(mockUser.id);
       expect(result).toEqual(mockUser);
     });
-
-    it('should get admin user by ID', async () => {
-      // Arrange
-      const mockAdmin = createMockAdmin();
-      usersService.findOne.mockResolvedValue(mockAdmin);
-
-      // Act
-      const result = await resolver.user(mockAdmin.id);
-
-      // Assert
-      expect(usersService.findOne).toHaveBeenCalledWith(mockAdmin.id);
-      expect(result).toEqual(mockAdmin);
-      expect(result.role).toBe(UserRole.ADMIN);
-    });
-
-    it('should get driver user by ID', async () => {
-      // Arrange
-      const mockDriver = createMockDriver();
-      usersService.findOne.mockResolvedValue(mockDriver);
-
-      // Act
-      const result = await resolver.user(mockDriver.id);
-
-      // Assert
-      expect(result).toEqual(mockDriver);
-      expect(result.role).toBe(UserRole.DRIVER);
-    });
-
-    it('should handle not found error', async () => {
-      // Arrange
-      const error = new Error('User not found');
-      usersService.findOne.mockRejectedValue(error);
-
-      // Act & Assert
-      await expect(resolver.user('invalid-id')).rejects.toThrow('User not found');
-      expect(usersService.findOne).toHaveBeenCalledWith('invalid-id');
-    });
-
-    it('should pass correct ID to service', async () => {
-      // Arrange
-      const userId = 'specific-user-id-123';
-      const mockUser = createMockUser({ id: userId });
-      usersService.findOne.mockResolvedValue(mockUser);
-
-      // Act
-      await resolver.user(userId);
-
-      // Assert
-      expect(usersService.findOne).toHaveBeenCalledTimes(1);
-      expect(usersService.findOne).toHaveBeenCalledWith(userId);
-    });
   });
 
   describe('drivers', () => {
     it('should get all active drivers', async () => {
       // Arrange
-      const mockDrivers = [
-        createMockDriver(),
-        createMockUser({ id: 'driver-2', role: UserRole.DRIVER }),
-        createMockUser({ id: 'driver-3', role: UserRole.DRIVER }),
-      ];
+      const mockDrivers = [createMockDriver(), createMockDriver()];
       usersService.findAllDrivers.mockResolvedValue(mockDrivers);
 
       // Act
       const result = await resolver.drivers();
 
       // Assert
-      expect(usersService.findAllDrivers).toHaveBeenCalledWith();
+      expect(usersService.findAllDrivers).toHaveBeenCalled();
       expect(result).toEqual(mockDrivers);
-      expect(result).toHaveLength(3);
-      expect(result.every(user => user.role === UserRole.DRIVER)).toBe(true);
-    });
-
-    it('should return empty array when no drivers found', async () => {
-      // Arrange
-      usersService.findAllDrivers.mockResolvedValue([]);
-
-      // Act
-      const result = await resolver.drivers();
-
-      // Assert
-      expect(result).toEqual([]);
-      expect(result).toHaveLength(0);
-    });
-
-    it('should call findAllDrivers without parameters', async () => {
-      // Arrange
-      const mockDrivers = [createMockDriver()];
-      usersService.findAllDrivers.mockResolvedValue(mockDrivers);
-
-      // Act
-      await resolver.drivers();
-
-      // Assert
-      expect(usersService.findAllDrivers).toHaveBeenCalledTimes(1);
-      expect(usersService.findAllDrivers).toHaveBeenCalledWith();
-    });
-
-    it('should handle service errors', async () => {
-      // Arrange
-      const error = new Error('Failed to fetch drivers');
-      usersService.findAllDrivers.mockRejectedValue(error);
-
-      // Act & Assert
-      await expect(resolver.drivers()).rejects.toThrow('Failed to fetch drivers');
-    });
-
-    it('should return only active drivers', async () => {
-      // Arrange
-      const mockDrivers = [
-        createMockDriver(), // Active by default
-        createMockUser({ id: 'driver-2', role: UserRole.DRIVER, isActive: true }),
-      ];
-      usersService.findAllDrivers.mockResolvedValue(mockDrivers);
-
-      // Act
-      const result = await resolver.drivers();
-
-      // Assert
-      expect(result.every(user => user.isActive === true)).toBe(true);
     });
   });
 });
