@@ -18,7 +18,10 @@ export class ShipmentService {
         ...createShipmentInput,
         pickupDate: new Date(createShipmentInput.pickupDate),
         estimatedDelivery: new Date(createShipmentInput.estimatedDelivery),
-        createdById: userId,
+        createdBy: { connect: { id: userId } },
+        createdAt: new Date(),
+        status: 'PENDING',
+        currency: 'USD',
       },
       include: {
         createdBy: true,

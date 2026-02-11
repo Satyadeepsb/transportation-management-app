@@ -40,7 +40,7 @@ export class UserEntity {
   lastName: string;
 
   @Field(() => UserRole)
-  role: UserRole;
+  role: string;
 
   @Field({ nullable: true })
   phone?: string;

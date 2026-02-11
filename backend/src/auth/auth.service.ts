@@ -39,6 +39,8 @@ export class AuthService {
         lastName: registerInput.lastName,
         role: registerInput.role,
         phone: registerInput.phone,
+        createdAt: new Date(),
+        isActive: true,
       },
     });
 

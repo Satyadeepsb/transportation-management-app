@@ -22,7 +22,7 @@ export class ShipmentEntity {
   trackingNumber: string;
 
   @Field(() => ShipmentStatus)
-  status: ShipmentStatus;
+  status: string;
 
   // Shipper Information
   @Field()
@@ -79,7 +79,7 @@ export class ShipmentEntity {
   dimensions?: string;
 
   @Field(() => VehicleType)
-  vehicleType: VehicleType;
+  vehicleType: string;
 
   // Financial
   @Field(() => Float)
