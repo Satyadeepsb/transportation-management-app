@@ -32,6 +32,7 @@ async function main() {
       role: UserRole.ADMIN,
       phone: '+1-555-0100',
       isActive: true,
+      createdAt: new Date(),
     },
   });
   console.log('✅ Admin user created:', admin.email, '(password: password123)');
@@ -50,6 +51,7 @@ async function main() {
       role: UserRole.DISPATCHER,
       phone: '+1-555-0101',
       isActive: true,
+      createdAt: new Date(),
     },
   });
   console.log('✅ Dispatcher created:', dispatcher.email, '(password: password123)');
@@ -68,6 +70,7 @@ async function main() {
       role: UserRole.DRIVER,
       phone: '+1-555-0201',
       isActive: true,
+      createdAt: new Date(),
     },
   });
   console.log('✅ Driver 1 created:', driver1.email, '(password: password123)');
@@ -85,6 +88,7 @@ async function main() {
       role: UserRole.DRIVER,
       phone: '+1-555-0202',
       isActive: true,
+      createdAt: new Date(),
     },
   });
   console.log('✅ Driver 2 created:', driver2.email, '(password: password123)');
@@ -103,6 +107,7 @@ async function main() {
       role: UserRole.CUSTOMER,
       phone: '+1-555-0300',
       isActive: true,
+      createdAt: new Date(),
     },
   });
   console.log('✅ Customer created:', customer.email, '(password: password123)');
@@ -136,6 +141,7 @@ async function main() {
       createdById: dispatcher.id,
       driverId: driver1.id,
       notes: 'Handle with care - fragile electronics',
+      createdAt: new Date(),
     },
   });
   console.log('✅ Shipment 1 created:', shipment1.trackingNumber);
@@ -168,6 +174,7 @@ async function main() {
       createdById: dispatcher.id,
       driverId: driver2.id,
       notes: 'Temperature-controlled transport required',
+      createdAt: new Date(),
     },
   });
   console.log('✅ Shipment 2 created:', shipment2.trackingNumber);
@@ -197,6 +204,7 @@ async function main() {
       status: ShipmentStatus.PENDING,
       createdById: customer.id,
       notes: 'Requires flatbed truck and crane at delivery',
+      createdAt: new Date(),
     },
   });
   console.log('✅ Shipment 3 created:', shipment3.trackingNumber);

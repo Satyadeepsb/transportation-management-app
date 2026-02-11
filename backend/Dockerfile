@@ -1,33 +1,47 @@
-# Backend Dockerfile - Production
-FROM node:20-alpine AS base
+# ---- Stage 1: Build ----
+FROM node:20-alpine AS builder
 
-# Install dependencies for building native modules
 RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies (including dev for build)
-RUN npm ci && npm cache clean --force
-
-# Copy source code
-COPY . .
+RUN npm ci
 
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Build the application
+COPY . .
+
 RUN npm run build
 
-# Expose port
+# ---- Stage 2: Production ----
+FROM node:20-alpine AS production
+
+RUN apk add --no-cache libc6-compat openssl
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install only production dependencies
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy generated Prisma client from builder
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy built application
+COPY --from=builder /app/dist ./dist
+
 EXPOSE 3000
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the application
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
