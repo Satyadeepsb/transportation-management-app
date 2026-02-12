@@ -7,10 +7,11 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 
 RUN npm ci
 
-# Generate Prisma Client
+# Generate Prisma Client (prisma.config.ts must be present)
 RUN npx prisma generate
 
 COPY . .
@@ -28,9 +29,11 @@ ENV NODE_ENV=production
 
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 
-# Install only production dependencies
+# Install production dependencies + prisma CLI for migrate deploy
 RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install prisma@7.3.0
 
 # Copy generated Prisma client from builder
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
