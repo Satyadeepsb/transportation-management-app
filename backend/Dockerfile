@@ -18,6 +18,9 @@ COPY . .
 
 RUN npm run build
 
+# Verify build output exists
+RUN ls -la dist/ && test -f dist/main.js
+
 # ---- Stage 2: Production ----
 FROM node:20-alpine AS production
 
@@ -41,6 +44,9 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy built application
 COPY --from=builder /app/dist ./dist
+
+# Verify dist was copied correctly
+RUN ls -la dist/ && test -f dist/main.js
 
 EXPOSE 3000
 
